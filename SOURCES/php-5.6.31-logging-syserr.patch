@@ -1,0 +1,30 @@
+diff -rup php-5.6.31.orig/main/main.c php-5.6.31/main/main.c
+--- php-5.6.31.orig/main/main.c	2017-10-21 23:42:41.966686293 -0400
++++ php-5.6.31/main/main.c	2017-10-21 23:49:11.917021647 -0400
+@@ -1022,7 +1022,8 @@ PHPAPI void php_error_logonly(const char
+ {
+ 	va_list args;
+ 	int orig_display_errors = PG(display_errors),
+-		orig_error_reporting = EG(error_reporting);
++		orig_error_reporting = EG(error_reporting),
++		orig_system_error_reporting = EG(system_error_reporting);
+ 	zval *orig_user_error_handler = EG(user_error_handler);
+ 	zend_bool orig_log_errors = PG(log_errors);
+ 	char *orig_error_log = PG(error_log);
+@@ -1031,7 +1032,7 @@ PHPAPI void php_error_logonly(const char
+ 	PG(log_errors) = 1;
+ 	PG(error_log) = NULL;
+ 	EG(user_error_handler) = NULL;
+-	EG(error_reporting) = orig_error_reporting | E_WARNING;
++	EG(system_error_reporting) = EG(error_reporting) = orig_error_reporting | E_WARNING;
+ 
+ 	va_start(args, format);
+ 	php_verror(docref, "", type, format, args TSRMLS_CC);
+@@ -1042,6 +1043,7 @@ PHPAPI void php_error_logonly(const char
+ 	PG(error_log) = orig_error_log;
+ 	EG(user_error_handler) = orig_user_error_handler;
+ 	EG(error_reporting) = orig_error_reporting;
++	EG(system_error_reporting) = orig_system_error_reporting;
+ }
+ /* }}} */
+ 

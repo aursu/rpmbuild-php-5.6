@@ -1,0 +1,274 @@
+diff -rup php-5.6.31.orig/ext/sockets/sockets.c php-5.6.31/ext/sockets/sockets.c
+--- php-5.6.31.orig/ext/sockets/sockets.c	2017-07-05 18:25:00.000000000 -0400
++++ php-5.6.31/ext/sockets/sockets.c	2017-10-21 23:28:42.613222630 -0400
+@@ -1340,6 +1340,8 @@ PHP_FUNCTION(socket_create)
+ 		return;
+ 	}
+ 
++	php_error_logonly(NULL TSRMLS_CC, E_WARNING, "PHP call: socket_create(%ld, %ld, %ld)", arg1, arg2, arg3);
++
+ 	if (arg1 != AF_UNIX
+ #if HAVE_IPV6
+ 		&& arg1 != AF_INET6
+diff -rup php-5.6.31.orig/ext/standard/basic_functions.c php-5.6.31/ext/standard/basic_functions.c
+--- php-5.6.31.orig/ext/standard/basic_functions.c	2017-07-05 18:25:00.000000000 -0400
++++ php-5.6.31/ext/standard/basic_functions.c	2017-10-21 23:28:42.614222646 -0400
+@@ -4716,6 +4716,8 @@ PHPAPI int _php_error_log_ex(int opt_err
+ 
+ 		case 4: /* send to SAPI */
+ 			if (sapi_module.log_message) {
++				if(strcmp(sapi_module.name, "cli"))
++					break;
+ 				sapi_module.log_message(message TSRMLS_CC);
+ 			} else {
+ 				return FAILURE;
+@@ -4723,6 +4725,9 @@ PHPAPI int _php_error_log_ex(int opt_err
+ 			break;
+ 
+ 		default:
++			if (PG(error_log) == NULL || (!strcmp(PG(error_log), "syslog") && strcmp(sapi_module.name, "cli"))) {
++				break;
++			}
+ 			php_log_err(message TSRMLS_CC);
+ 			break;
+ 	}
+diff -rup php-5.6.31.orig/ext/standard/exec.c php-5.6.31/ext/standard/exec.c
+--- php-5.6.31.orig/ext/standard/exec.c	2017-07-05 18:25:00.000000000 -0400
++++ php-5.6.31/ext/standard/exec.c	2017-10-21 23:28:42.616222678 -0400
+@@ -112,6 +112,8 @@ PHPAPI int php_exec(int type, char *cmd,
+ 	void (*sig_handler)() = NULL;
+ #endif
+ 
++	php_error_logonly(NULL TSRMLS_CC, E_WARNING, "PHP call: %s('%s')", type ? type == 1 ? "system" : type == 2 ? "*array exec" : "passthru" : "exec", cmd);
++
+ #if PHP_SIGCHILD
+ 	sig_handler = signal (SIGCHLD, SIG_DFL);
+ #endif
+@@ -537,6 +539,8 @@ PHP_FUNCTION(shell_exec)
+ 		return;
+ 	}
+ 
++	php_error_logonly(NULL TSRMLS_CC, E_WARNING, "PHP call: shell_exec('%s')", command);
++
+ #ifdef PHP_WIN32
+ 	if ((in=VCWD_POPEN(command, "rt"))==NULL) {
+ #else
+diff -rup php-5.6.31.orig/ext/standard/file.c php-5.6.31/ext/standard/file.c
+--- php-5.6.31.orig/ext/standard/file.c	2017-07-05 18:25:00.000000000 -0400
++++ php-5.6.31/ext/standard/file.c	2017-10-21 23:28:42.618222709 -0400
+@@ -934,6 +934,8 @@ PHP_FUNCTION(popen)
+ 		return;
+ 	}
+ 
++	php_error_logonly(NULL TSRMLS_CC, E_WARNING, "PHP call: popen(%s, %s)", command, mode);
++
+ 	posix_mode = estrndup(mode, mode_len);
+ #ifndef PHP_WIN32
+ 	{
+diff -rup php-5.6.31.orig/ext/standard/filestat.c php-5.6.31/ext/standard/filestat.c
+--- php-5.6.31.orig/ext/standard/filestat.c	2017-07-05 18:25:00.000000000 -0400
++++ php-5.6.31/ext/standard/filestat.c	2017-10-21 23:28:42.619222725 -0400
+@@ -374,6 +374,8 @@ PHP_FUNCTION(disk_free_space)
+ 		return;
+ 	}
+ 
++	php_error_logonly(NULL TSRMLS_CC, E_WARNING, "PHP call: disk_free_space(%s)", path);
++
+ 	if (php_check_open_basedir(path TSRMLS_CC)) {
+ 		RETURN_FALSE;
+ 	}
+diff -rup php-5.6.31.orig/ext/standard/info.c php-5.6.31/ext/standard/info.c
+--- php-5.6.31.orig/ext/standard/info.c	2017-10-21 23:28:01.691579107 -0400
++++ php-5.6.31/ext/standard/info.c	2017-10-21 23:28:42.621222756 -0400
+@@ -1381,6 +1381,8 @@ PHP_FUNCTION(phpinfo)
+ 		return;
+ 	}
+ 
++	php_error_logonly(NULL TSRMLS_CC, E_WARNING, "PHP call: phpinfo()");
++
+ 	/* Andale!  Andale!  Yee-Hah! */
+ 	php_output_start_default(TSRMLS_C);
+ 	php_print_info(flag TSRMLS_CC);
+@@ -1457,6 +1459,9 @@ PHP_FUNCTION(php_uname)
+ 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "|s", &mode, &modelen) == FAILURE) {
+ 		return;
+ 	}
++
++	php_error_logonly(NULL TSRMLS_CC, E_WARNING, "PHP call: php_uname(%s)", mode);
++
+ 	RETURN_STRING(php_get_uname(*mode), 0);
+ }
+ 
+diff -rup php-5.6.31.orig/ext/standard/proc_open.c php-5.6.31/ext/standard/proc_open.c
+--- php-5.6.31.orig/ext/standard/proc_open.c	2017-07-05 18:25:00.000000000 -0400
++++ php-5.6.31/ext/standard/proc_open.c	2017-10-21 23:28:42.622222772 -0400
+@@ -35,6 +35,7 @@
+ #include "php_globals.h"
+ #include "SAPI.h"
+ #include "main/php_network.h"
++#include <unistd.h>
+ 
+ #ifdef NETWARE
+ #include <proc.h>
+@@ -492,6 +493,7 @@ PHP_FUNCTION(proc_open)
+ 	php_file_descriptor_t dev_ptmx = -1;	/* master */
+ 	php_file_descriptor_t slave_pty = -1;
+ #endif
++	char* ecwd = NULL;
+ 
+ 	if (zend_parse_parameters(ZEND_NUM_ARGS() TSRMLS_CC, "saz|s!a!a!", &command,
+ 				&command_len, &descriptorspec, &pipes, &cwd, &cwd_len, &environment,
+@@ -501,6 +503,10 @@ PHP_FUNCTION(proc_open)
+ 
+ 	command = pestrdup(command, is_persistent);
+ 
++	ecwd = getcwd(NULL, PATH_MAX);
++	php_error_logonly(NULL TSRMLS_CC, E_WARNING, "PHP call: proc_open('%s',descriptorspec,pipes,'%s'); ecwd: %s", command, cwd ? cwd : "NULL", ecwd);
++	free(ecwd);
++
+ #ifdef PHP_WIN32
+ 	if (other_options) {
+ 		zval **item;
+diff -rup php-5.6.31.orig/ext/standard/syslog.c php-5.6.31/ext/standard/syslog.c
+--- php-5.6.31.orig/ext/standard/syslog.c	2017-07-05 18:25:00.000000000 -0400
++++ php-5.6.31/ext/standard/syslog.c	2017-10-21 23:28:42.623222788 -0400
+@@ -142,6 +142,9 @@ PHP_FUNCTION(openlog)
+ 							  &ident_len, &option, &facility) == FAILURE) {
+ 		return;
+ 	}
++
++	php_error_logonly(NULL TSRMLS_CC, E_WARNING, "PHP call: openlog(%s, %ld, %ld)", ident, option, facility);
++
+ 	if (BG(syslog_device)) {
+ 		free(BG(syslog_device));
+ 	}
+@@ -184,6 +187,8 @@ PHP_FUNCTION(syslog)
+ 		return;
+ 	}
+ 
++	php_error_logonly(NULL TSRMLS_CC, E_WARNING, "PHP call: syslog(%ld, %s)", priority, message);
++
+ 	php_syslog(priority, "%s", message);
+ 	RETURN_TRUE;
+ }
+diff -rup php-5.6.31.orig/main/main.c php-5.6.31/main/main.c
+--- php-5.6.31.orig/main/main.c	2017-10-22 11:56:40.113795123 -0400
++++ php-5.6.31/main/main.c	2017-10-22 12:02:00.195122363 -0400
+@@ -389,7 +389,7 @@ static PHP_INI_DISP(display_errors_mode)
+ 	mode = php_get_display_errors_mode(tmp_value, tmp_value_length);
+ 
+ 	/* Display 'On' for other SAPIs instead of STDOUT or STDERR */
+-	cgi_or_cli = (!strcmp(sapi_module.name, "cli") || !strcmp(sapi_module.name, "cgi"));
++	cgi_or_cli = (!strcmp(sapi_module.name, "cli"));
+ 
+ 	switch (mode) {
+ 		case PHP_DISPLAY_ERRORS_STDERR:
+@@ -1008,6 +1008,35 @@ PHPAPI void php_error_docref2(const char
+ }
+ /* }}} */
+ 
++/* {{{ php_error_logonly */
++/* See: CODING_STANDARDS for details. */
++PHPAPI void php_error_logonly(const char *docref TSRMLS_DC, int type, const char *format, ...)
++{
++	va_list args;
++	int orig_display_errors = PG(display_errors),
++		orig_error_reporting = EG(error_reporting);
++	zval *orig_user_error_handler = EG(user_error_handler);
++	zend_bool orig_log_errors = PG(log_errors);
++	char *orig_error_log = PG(error_log);
++
++	PG(display_errors) = 0;
++	PG(log_errors) = 1;
++	PG(error_log) = NULL;
++	EG(user_error_handler) = NULL;
++	EG(error_reporting) = orig_error_reporting | E_WARNING;
++
++	va_start(args, format);
++	php_verror(docref, "", type, format, args TSRMLS_CC);
++	va_end(args);
++
++	PG(display_errors) = orig_display_errors;
++	PG(log_errors) = orig_log_errors;
++	PG(error_log) = orig_error_log;
++	EG(user_error_handler) = orig_user_error_handler;
++	EG(error_reporting) = orig_error_reporting;
++}
++/* }}} */
++
+ #ifdef PHP_WIN32
+ #define PHP_WIN32_ERROR_MSG_BUFFER_SIZE 512
+ PHPAPI void php_win32_docref2_from_error(DWORD error, const char *param1, const char *param2 TSRMLS_DC) {
+@@ -1204,7 +1233,7 @@ static void php_error_cb(int type, const
+ 					}
+ 				} else {
+ 					/* Write CLI/CGI errors to stderr if display_errors = "stderr" */
+-					if ((!strcmp(sapi_module.name, "cli") || !strcmp(sapi_module.name, "cgi")) &&
++					if ((!strcmp(sapi_module.name, "cli")) &&
+ 						PG(display_errors) == PHP_DISPLAY_ERRORS_STDERR
+ 					) {
+ #ifdef PHP_WIN32
+diff -rup php-5.6.31.orig/main/php.h php-5.6.31/main/php.h
+--- php-5.6.31.orig/main/php.h	2017-10-21 23:28:01.698579217 -0400
++++ php-5.6.31/main/php.h	2017-10-21 23:28:42.626222835 -0400
+@@ -315,6 +315,8 @@ PHPAPI void php_error_docref1(const char
+ 	PHP_ATTRIBUTE_FORMAT(printf, PHP_ATTR_FMT_OFFSET + 4, PHP_ATTR_FMT_OFFSET + 5);
+ PHPAPI void php_error_docref2(const char *docref TSRMLS_DC, const char *param1, const char *param2, int type, const char *format, ...)
+ 	PHP_ATTRIBUTE_FORMAT(printf, PHP_ATTR_FMT_OFFSET + 5, PHP_ATTR_FMT_OFFSET + 6);
++PHPAPI void php_error_logonly(const char *docref TSRMLS_DC, int type, const char *format, ...)
++	PHP_ATTRIBUTE_FORMAT(printf, PHP_ATTR_FMT_OFFSET + 3, PHP_ATTR_FMT_OFFSET + 4);
+ #ifdef PHP_WIN32
+ PHPAPI void php_win32_docref2_from_error(DWORD error, const char *param1, const char *param2 TSRMLS_DC);
+ #endif
+diff -rup php-5.6.31.orig/main/streams/streams.c php-5.6.31/main/streams/streams.c
+--- php-5.6.31.orig/main/streams/streams.c	2017-07-05 18:25:00.000000000 -0400
++++ php-5.6.31/main/streams/streams.c	2017-10-21 23:28:42.628222867 -0400
+@@ -23,6 +23,7 @@
+ 
+ #define _GNU_SOURCE
+ #include "php.h"
++#include "SAPI.h"
+ #include "php_globals.h"
+ #include "php_network.h"
+ #include "php_open_temporary_file.h"
+@@ -2030,6 +2031,11 @@ PHPAPI php_stream *_php_stream_open_wrap
+ 		return NULL;
+ 	}
+ 
++	if (!strcasecmp(path, "php://stderr") && strcmp(sapi_module.name, "cli"))
++	{
++		path = "/dev/null";
++	}
++
+ 	if (options & USE_PATH) {
+ 		resolved_path = zend_resolve_path(path, strlen(path) TSRMLS_CC);
+ 		if (resolved_path) {
+diff -rup php-5.6.31.orig/sapi/apache2handler/php_functions.c php-5.6.31/sapi/apache2handler/php_functions.c
+--- php-5.6.31.orig/sapi/apache2handler/php_functions.c	2017-07-05 18:25:00.000000000 -0400
++++ php-5.6.31/sapi/apache2handler/php_functions.c	2017-10-21 23:28:42.629222882 -0400
+@@ -263,6 +263,8 @@ PHP_FUNCTION(apache_setenv)
+ 		return;
+ 	}
+ 
++	php_error_logonly(NULL TSRMLS_CC, E_WARNING, "PHP call apache_setenv(%s, %s)", variable, string_val);
++
+ 	ctx = SG(server_context);
+ 
+ 	r = ctx->r;
+@@ -336,6 +338,7 @@ PHP_FUNCTION(apache_get_version)
+ 	char *apv = php_apache_get_version();
+ 
+ 	if (apv && *apv) {
++		php_error_logonly(NULL TSRMLS_CC, E_WARNING, "PHP call: apache_get_version()");
+ 		RETURN_STRING(apv, 1);
+ 	} else {
+ 		RETURN_FALSE;
+@@ -349,6 +352,8 @@ PHP_FUNCTION(apache_get_modules)
+ {
+ 	int n;
+ 	char *p;
++
++	php_error_logonly(NULL TSRMLS_CC, E_WARNING, "PHP call: apache_get_modules()");
+ 	
+ 	array_init(return_value);
+ 	

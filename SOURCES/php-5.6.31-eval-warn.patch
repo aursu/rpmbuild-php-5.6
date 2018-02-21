@@ -1,0 +1,75 @@
+diff -rup php-5.6.31.orig/main/main.c php-5.6.31/main/main.c
+--- php-5.6.31.orig/main/main.c	2017-10-21 21:56:00.951656908 -0400
++++ php-5.6.31/main/main.c	2017-10-21 22:04:24.954667822 -0400
+@@ -1043,6 +1043,21 @@ static void php_error_cb(int type, const
+ 	char *buffer;
+ 	int buffer_len, display;
+ 	TSRMLS_FETCH();
++	zend_bool during_eval_notype = EG(current_execute_data) &&
++		EG(current_execute_data)->opline &&
++		EG(current_execute_data)->opline->opcode == ZEND_INCLUDE_OR_EVAL &&
++		EG(current_execute_data)->opline->extended_value == ZEND_EVAL,
++		orig_log_errors = PG(log_errors);
++	int orig_display_errors = PG(display_errors),
++		orig_error_reporting = EG(error_reporting);
++	char *orig_error_log = PG(error_log);
++
++	if ( during_eval_notype ) {
++		PG(display_errors) = 0;
++		PG(log_errors) = 1;
++		PG(error_log) = NULL;
++		EG(error_reporting) = orig_error_reporting | E_WARNING;
++	}
+ 
+ 	buffer_len = vspprintf(&buffer, PG(log_errors_max_len), format, args);
+ 
+@@ -1203,6 +1218,12 @@ static void php_error_cb(int type, const
+ 				}
+ 			}
+ 		}
++
++		PG(display_errors) = orig_display_errors;
++		PG(log_errors) = orig_log_errors;
++		PG(error_log) = orig_error_log;
++		EG(error_reporting) = orig_error_reporting;
++
+ #if ZEND_DEBUG
+ 		if (PG(report_zend_debug)) {
+ 			zend_bool trigger_break;
+@@ -1238,10 +1259,7 @@ static void php_error_cb(int type, const
+ 		case E_USER_ERROR:
+ 		{ /* new block to allow variable definition */
+ 			/* eval() errors do not affect exit_status or response code */
+-			zend_bool during_eval = (type == E_PARSE) && (EG(current_execute_data) &&
+-						EG(current_execute_data)->opline &&
+-						EG(current_execute_data)->opline->opcode == ZEND_INCLUDE_OR_EVAL &&
+-						EG(current_execute_data)->opline->extended_value == ZEND_EVAL);
++			zend_bool during_eval = (type == E_PARSE) && during_eval_notype;
+ 			if (!during_eval) {
+ 				EG(exit_status) = 255;
+ 			}
+Only in php-5.6.31/main: main.c.orig
+diff -rup php-5.6.31.orig/Zend/zend_vm_execute.h php-5.6.31/Zend/zend_vm_execute.h
+--- php-5.6.31.orig/Zend/zend_vm_execute.h	2017-07-05 18:25:00.000000000 -0400
++++ php-5.6.31/Zend/zend_vm_execute.h	2017-10-21 22:01:33.590975100 -0400
+@@ -2924,6 +2924,8 @@ static int ZEND_FASTCALL  ZEND_INCLUDE_O
+ 	zval *inc_filename;
+ 	zval *tmp_inc_filename = NULL;
+ 	zend_bool failure_retval=0;
++	zval *orig_user_error_handler = EG(user_error_handler);
++	zend_error_handling_t orig_error_handling = EG(error_handling);
+ 
+ 	SAVE_OPLINE();
+ 	inc_filename = opline->op1.zv;
+@@ -2989,6 +2991,11 @@ static int ZEND_FASTCALL  ZEND_INCLUDE_O
+ 				break;
+ 			case ZEND_EVAL: {
+ 					char *eval_desc = zend_make_compiled_string_description("eval()'d code" TSRMLS_CC);
++					EG(user_error_handler) = NULL;
++					EG(error_handling) = EH_NORMAL;
++					zend_error(E_WARNING,"PHP eval('%s')", Z_STRVAL_P(inc_filename));
++					EG(user_error_handler) = orig_user_error_handler;
++					EG(error_handling) = orig_error_handling;
+ 
+ 					new_op_array = zend_compile_string(inc_filename, eval_desc TSRMLS_CC);
+ 					efree(eval_desc);

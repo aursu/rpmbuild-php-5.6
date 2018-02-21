@@ -1,0 +1,29 @@
+diff -rup php-5.6.31.orig/main/main.c php-5.6.31/main/main.c
+--- php-5.6.31.orig/main/main.c	2017-10-21 22:04:24.954667822 -0400
++++ php-5.6.31/main/main.c	2017-10-21 22:09:22.565383220 -0400
+@@ -1049,14 +1049,15 @@ static void php_error_cb(int type, const
+ 		EG(current_execute_data)->opline->extended_value == ZEND_EVAL,
+ 		orig_log_errors = PG(log_errors);
+ 	int orig_display_errors = PG(display_errors),
+-		orig_error_reporting = EG(error_reporting);
++		orig_error_reporting = EG(error_reporting),
++		orig_system_error_reporting = EG(system_error_reporting);
+ 	char *orig_error_log = PG(error_log);
+ 
+ 	if ( during_eval_notype ) {
+ 		PG(display_errors) = 0;
+ 		PG(log_errors) = 1;
+ 		PG(error_log) = NULL;
+-		EG(error_reporting) = orig_error_reporting | E_WARNING;
++		EG(system_error_reporting) = EG(error_reporting) = orig_error_reporting | E_WARNING;
+ 	}
+ 
+ 	buffer_len = vspprintf(&buffer, PG(log_errors_max_len), format, args);
+@@ -1223,6 +1224,7 @@ static void php_error_cb(int type, const
+ 		PG(log_errors) = orig_log_errors;
+ 		PG(error_log) = orig_error_log;
+ 		EG(error_reporting) = orig_error_reporting;
++		EG(system_error_reporting) = orig_system_error_reporting;
+ 
+ #if ZEND_DEBUG
+ 		if (PG(report_zend_debug)) {

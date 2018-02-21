@@ -1,0 +1,109 @@
+diff -rup php-5.6.30.orig/ext/siteguard/siteguard.c php-5.6.30/ext/siteguard/siteguard.c
+--- php-5.6.30.orig/ext/siteguard/siteguard.c	2017-06-13 16:10:22.647217245 -0400
++++ php-5.6.30/ext/siteguard/siteguard.c	2017-06-13 16:12:51.392848409 -0400
+@@ -68,7 +68,7 @@ _syscall3(long, getresuid, uid_t *, ruid
+ 
+ /* Every user visible function must have an entry in siteguard_functions[].
+ */
+-function_entry siteguard_functions[] = {
++zend_function_entry siteguard_functions[] = {
+ 	PHP_FE(getuid, NULL)
+ 	PHP_FE(geteuid, NULL)
+ 	PHP_FE(libcgeteuid, NULL)
+@@ -379,7 +379,7 @@ PHP_MINFO_FUNCTION(siteguard)
+    Switch uid to specified user name if allowed to do so */
+ PHP_FUNCTION(switchtouser)
+ {
+-	pval	*name, *lockp;
++	zval	*name, *lockp;
+ 	int	 ac, lock = 0;
+ 	uid_t	 uid;
+ 	struct passwd *pw;
+@@ -389,7 +389,7 @@ PHP_FUNCTION(switchtouser)
+         
+ 	ac = ARG_COUNT(ht);
+ 
+-	if (ac < 1 || getParameters(ht, ac, &name, &lockp)==FAILURE) {
++	if (ac < 1 || zend_get_parameters(ht, ac, &name, &lockp)==FAILURE) {
+ 		WRONG_PARAM_COUNT;
+ 	}
+ 
+@@ -564,13 +564,13 @@ PHP_FUNCTION(cuserid)
+    return user's home directory */
+ PHP_FUNCTION(gethomedir)
+ {
+-	pval    *name;
++	zval    *name;
+ 	int      ac;
+ 	struct passwd *pw;
+ 
+ 	ac = ARG_COUNT(ht);
+ 
+-	if (ac < 1 || getParameters(ht, ac, &name)==FAILURE) {
++	if (ac < 1 || zend_get_parameters(ht, ac, &name)==FAILURE) {
+ 		pw = getpwuid(geteuid());
+ 	}
+ 	else {
+@@ -594,7 +594,7 @@ PHP_FUNCTION(gethomedir)
+ 
+ PHP_FUNCTION(getpwuid)
+ {
+-	pval          *uid;
++	zval          *uid;
+ 	struct passwd *pw;
+ 	
+ 	if (ZEND_NUM_ARGS() != 1 || zend_get_parameters(ht, 1, &uid)==FAILURE) {
+@@ -623,7 +623,7 @@ PHP_FUNCTION(getpwuid)
+ 
+ PHP_FUNCTION(getpwnam)
+ {
+-	pval          *name;
++	zval          *name;
+ 	struct passwd *pw;
+ 	
+ 	if (ZEND_NUM_ARGS() != 1 || zend_get_parameters(ht, 1, &name)==FAILURE) {
+@@ -652,7 +652,7 @@ PHP_FUNCTION(getpwnam)
+ 
+ PHP_FUNCTION(groupweb)
+ {
+-	pval	**filename;
++	zval	**filename;
+ 	uid_t ruid, euid, suid;
+ 	int	ret;
+ 	struct stat sb;
+@@ -709,7 +709,7 @@ PHP_FUNCTION(groupweb)
+    Chown file to specified user name if allowed to do so */
+ PHP_FUNCTION(givetouser)
+ {
+-	pval	*username, *filename;
++	zval	*username, *filename;
+ 	int	 ac, ret;
+ 	struct passwd *pw;
+ 	struct stat sb;
+@@ -718,7 +718,7 @@ PHP_FUNCTION(givetouser)
+ 
+ 	ac = ARG_COUNT(ht);
+ 
+-	if (ac < 2 || getParameters(ht, ac, &username, &filename)==FAILURE)
++	if (ac < 2 || zend_get_parameters(ht, ac, &username, &filename)==FAILURE)
+ 	{
+ 		WRONG_PARAM_COUNT;
+ 	}
+@@ -806,7 +806,7 @@ PHP_FUNCTION(givetouser)
+ PHP_FUNCTION(setwebpagesdir)
+ {
+ 	static  char fbuf[1024];
+-	pval	**filename;
++	zval	**filename;
+ 	struct stat sb;
+ 	uid_t ruid, euid, suid;
+ 	PLS_FETCH();
+@@ -903,7 +903,7 @@ PHP_FUNCTION(getmailboxusage)
+ 	unsigned long long usage;
+         unsigned long long quota;
+         int fd ;
+- 	pval *name;
++ 	zval *name;
+ 	char buf[64];
+ 
+ 	buf[sizeof(buf)-1]='\0';
