@@ -610,12 +610,9 @@ License: PHP
 Requires: %{php_common}%{?_isa} = %{version}-%{release}
 Provides: php_database
 # This extension was DEPRECATED in PHP 5.5.0, and it was removed in PHP 7.0.0
-Provides: php-mysql = %{version}-%{release}
-Provides: php-mysql%{?_isa} = %{version}-%{release}
 Provides: php-mysqli = %{version}-%{release}
 Provides: php-mysqli%{?_isa} = %{version}-%{release}
 Provides: php-pdo_mysql, php-pdo_mysql%{?_isa}
-Obsoletes: php-mysql < %{version}-%{release}
 
 %description mysqlnd
 The php-mysqlnd package contains a dynamic shared object that will add
