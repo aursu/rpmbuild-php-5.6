@@ -143,7 +143,7 @@
 
 Summary: PHP scripting language for creating dynamic web sites
 Name: %{php_main}
-Version: 5.6.33
+Version: 5.6.34
 Release: %{rpmrel}%{?aptag}%{?dist}
 
 # All files licensed under PHP version 3.01, except
@@ -1371,6 +1371,9 @@ fi
 %endif
 
 %changelog
+* Mon Mar  5 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.34-1
+- update to 5.6.34
+
 * Mon Feb 19 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.33-1
 - update to 5.6.33
 - added fpm sapi
