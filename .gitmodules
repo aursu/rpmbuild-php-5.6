@@ -1,0 +1,6 @@
+[submodule "rpmbuild"]
+	path = rpmbuild
+	url = https://github.com/aursu/docker-rpmbuild.git
+[submodule "centos"]
+	path = centos
+	url = https://github.com/aursu/docker-centos.git
