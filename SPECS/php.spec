@@ -13,14 +13,17 @@
 # https://github.com/rpm-software-management/rpm/blob/master/doc/manual/conditionalbuilds
 # php-cgi SAPI
 %global with_cgi 0%{?_with_cgi:1}
+%global with_fpm 0%{?_with_fpm:1}
 %global with_test 0%{?_with_test:1}
-%global with_ap24 0%{?_with_ap24:1}
-%global with_relocation 0%{?_with_relocation:1}
 
+%if 0%{?fedora} || 0%{?rhel} >= 7
+%global with_ap24 1
+%else
+%global with_ap24 0%{?_with_ap24:1}
+%endif
+%global with_relocation 0%{?_with_relocation:1}
 # with this flag set on we will build php-mysqlnd
 %global with_mysqlnd 0%{?_with_mysqlnd:1}
-
-%global with_fpm 0%{?_with_fpm:1}
 
 # _rundir is defined in RHEL/CentOS 7
 %if 0%{?rhel} < 7
@@ -127,12 +130,13 @@
 
 %global with_dtrace 1
 %global with_zip    1
-%global with_libzip 0
 
-%if 0%{?fedora} < 18 && 0%{?rhel} < 7
-%global db_devel  db4-devel
-%else
+%if 0%{?fedora} || 0%{?rhel} >= 7
 %global db_devel  libdb-devel
+%global with_libzip 1
+%else
+%global db_devel  db4-devel
+%global with_libzip 0
 %endif
 
 %global rpmrel 1
@@ -143,7 +147,7 @@
 
 Summary: PHP scripting language for creating dynamic web sites
 Name: %{php_main}
-Version: 5.6.34
+Version: 5.6.36
 Release: %{rpmrel}%{?aptag}%{?dist}
 
 # All files licensed under PHP version 3.01, except
@@ -232,10 +236,9 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 BuildRequires: autoconf
 BuildRequires: bison
 BuildRequires: bzip2-devel
-BuildRequires: curl-devel >= 7.29
 BuildRequires: %{db_devel}
 BuildRequires: flex
-BuildRequires: freetds-devel
+BuildRequires: freetds-devel >= 0.95.81
 BuildRequires: freetype-devel
 BuildRequires: gcc-c++
 BuildRequires: gdbm-devel
@@ -245,37 +248,33 @@ BuildRequires: httpd-devel >= 2.4
 BuildRequires: httpd-devel >= 2.2
 BuildRequires: httpd-devel < 2.4
 %endif
-BuildRequires: libc-client-devel
+BuildRequires: libcurl-devel >= 7.29
+BuildRequires: libc-client-devel >= 2007f
 BuildRequires: libicu-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libmcrypt-devel
 BuildRequires: libpng-devel
 BuildRequires: libstdc++-devel
-BuildRequires: libtool >= 1.4.3
+BuildRequires: libtool
 BuildRequires: libtool-ltdl-devel
 BuildRequires: libxml2-devel
 %if %{with_libzip}
 BuildRequires: libzip-devel >= 0.11
 %endif
 BuildRequires: openssl-devel
-BuildRequires: pcre-devel >= 6.6
+BuildRequires: pcre-devel
 BuildRequires: perl
 BuildRequires: smtpdaemon
-BuildRequires: sqlite-devel >= 3.6.0
+BuildRequires: sqlite-devel
 BuildRequires: unixODBC-devel
 BuildRequires: zlib-devel
-# to ensure we are using httpd with filesystem feature (see #1081453)
-#BuildRequires: httpd-filesystem
-%if %{with_fpm}
-# to ensure we are using nginx with filesystem feature (see #1142298)
-BuildRequires: nginx-filesystem
-%endif
 %if %{with_dtrace}
 BuildRequires: systemtap-sdt-devel
 %endif
 
 Requires: httpd-mmn = %{_httpd_mmn}
 %if %{with_ap24}
+# to ensure we are using httpd with filesystem feature (see #1081453)
 Requires: httpd-filesystem >= 2.4
 %endif
 Requires: %{php_common}%{?_isa} = %{version}-%{release}
@@ -463,6 +462,8 @@ Summary: PHP FastCGI Process Manager
 Requires: %{php_common}%{?_isa} = %{version}-%{release}
 Requires(pre): /usr/sbin/useradd
 BuildRequires: libacl-devel
+# to ensure we are using nginx with filesystem feature (see #1142298)
+BuildRequires: nginx-filesystem
 %if 0%{?rhel} >= 7
 BuildRequires: systemd-units
 BuildRequires: systemd-devel
@@ -543,7 +544,7 @@ Summary: A PostgreSQL database module for PHP
 Group: Development/Languages
 # All files licensed under PHP version 3.01
 License: PHP
-BuildRequires: postgresql-devel
+BuildRequires: postgresql-devel >= 9.2.23
 Requires: %{php_common}%{?_isa} = %{version}-%{release}
 Requires: postgresql-libs
 
@@ -1371,6 +1372,9 @@ fi
 %endif
 
 %changelog
+* Mon May 21 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.36-1
+- update to 5.6.36
+
 * Mon Mar  5 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.34-1
 - update to 5.6.34
 
