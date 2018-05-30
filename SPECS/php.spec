@@ -238,7 +238,7 @@ BuildRequires: bison
 BuildRequires: bzip2-devel
 BuildRequires: %{db_devel}
 BuildRequires: flex
-BuildRequires: freetds-devel >= 0.95.81
+BuildRequires: freetds-devel
 BuildRequires: freetype-devel
 BuildRequires: gcc-c++
 BuildRequires: gdbm-devel
@@ -248,8 +248,8 @@ BuildRequires: httpd-devel >= 2.4
 BuildRequires: httpd-devel >= 2.2
 BuildRequires: httpd-devel < 2.4
 %endif
-BuildRequires: libcurl-devel >= 7.29
-BuildRequires: libc-client-devel >= 2007f
+BuildRequires: libcurl-devel
+BuildRequires: libc-client-devel
 BuildRequires: libicu-devel
 BuildRequires: libjpeg-devel
 BuildRequires: libmcrypt-devel
@@ -280,7 +280,7 @@ Requires: httpd-filesystem >= 2.4
 Requires: %{php_common}%{?_isa} = %{version}-%{release}
 
 # To ensure correct /var/lib/php/session ownership:
-Requires(pre): httpd >= 2.2.26
+Requires(pre): httpd
 
 # Don't provides extensions, which are not shared library, as .so
 # RPM 4.8
@@ -544,7 +544,7 @@ Summary: A PostgreSQL database module for PHP
 Group: Development/Languages
 # All files licensed under PHP version 3.01
 License: PHP
-BuildRequires: postgresql-devel >= 9.2.23
+BuildRequires: postgresql-devel
 Requires: %{php_common}%{?_isa} = %{version}-%{release}
 Requires: postgresql-libs
 
