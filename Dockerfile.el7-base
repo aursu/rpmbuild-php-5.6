@@ -4,7 +4,6 @@ USER root
 RUN yum -y install \
         bzip2-devel \
         cyrus-sasl-devel \
-        freetds-devel \
         freetype-devel \
         gdbm-devel \
         httpd-devel \
