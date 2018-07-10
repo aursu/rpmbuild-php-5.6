@@ -8,7 +8,8 @@ RUN yum -y install \
         freetype-devel \
         gdbm-devel \
         libacl-devel \
-	    libicu-devel \
+        libc-client-devel \
+        libicu-devel \
         libjpeg-turbo-devel \
         libmcrypt-devel \
         libpng-devel \
@@ -28,10 +29,8 @@ RUN yum -y install \
     && yum clean all && rm -rf /var/cache/yum
 
 RUN yum -y --enablerepo custom install \
-        freetds-devel \
         libcurl-devel \
         postgresql-devel \
-        uw-imap-devel \
     && yum clean all && rm -rf /var/cache/yum
 
 RUN yum -y --enablerepo custom install \
