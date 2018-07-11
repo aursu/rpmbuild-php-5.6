@@ -33,9 +33,7 @@ jobs:
             git checkout v7.60.0-2
       - run:
           name: Build Curl
-          command: |
-            docker-compose -f rpmbuild-curl/docker-compose.yml up centos7curlbuild
-            docker-compose -f rpmbuild-curl/docker-compose.yml up centos6curlbuild
+          command: docker-compose -f rpmbuild-curl/docker-compose.yml up
       - run:
           name: Checkout PostgreSQL 9.6
           command: |
@@ -44,9 +42,7 @@ jobs:
             git checkout v9.6.9-2
       - run:
           name: Build PostgreSQL 9.6
-          command: |
-            docker-compose -f rpmbuild-postgresql/docker-compose.yml up postgresql7build
-            docker-compose -f rpmbuild-postgresql/docker-compose.yml up postgresql6build
+          command: docker-compose -f rpmbuild-postgresql/docker-compose.yml up
       - run:
           name: Checkout Apache 2.4
           command: |
@@ -55,14 +51,10 @@ jobs:
             git checkout v2.4.33-5
       - run:
           name: Build Apache 2.4
-          command: |
-            docker-compose -f rpmbuild-httpd-2.4/docker-compose.yml up centos7ap24build
-            docker-compose -f rpmbuild-httpd-2.4/docker-compose.yml up centos6ap24build
+          command: docker-compose -f rpmbuild-httpd-2.4/docker-compose.yml up
       - run:
-          name: Build Docker image
-          command: |
-            docker ps
-            docker-compose build --no-cache
+          name: Build PHP Docker images
+          command: docker-compose build --no-cache
       - run:
           name: Build PHP 5.6
           command: docker-compose -f docker-compose.el7.yml up centos7php5
