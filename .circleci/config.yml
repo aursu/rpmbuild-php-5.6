@@ -15,11 +15,16 @@ jobs:
             sudo curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
       - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
+      - run:
+          name: Git submodules sync
+          command: |
+            git submodule sync
+            git submodule update --init
       - run:
           name: Start docker services for rpmbuild
           command: docker-compose -f rpmbuild/docker-compose.yml up -d
+          background: true
+          no_output_timeout: 2h
       - run:
           name: Checkout curl
           command: |
@@ -49,7 +54,9 @@ jobs:
           command: docker-compose -f rpmbuild-httpd-2.4/docker-compose.yml up centos7ap24build
       - run:
           name: Build Docker image
-          command: docker-compose build
+          command: |
+            docker ps
+            docker-compose build
       - run:
           name: Build PHP 5.6
           command: docker-compose -f docker-compose.el7.yml up centos7php5
