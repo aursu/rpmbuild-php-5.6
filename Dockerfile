@@ -1,4 +1,4 @@
-FROM rpmbuild:6-php5base
+FROM aursu/php5build:6-base
 
 COPY SOURCES ${BUILD_TOPDIR}/SOURCES
 COPY SPECS ${BUILD_TOPDIR}/SPECS

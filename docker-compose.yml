@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile.base
       network: buildnet
-    image: rpmbuild:6-php5base
+    image: aursu/php5build:6-base
   centos6php5ap24base:
     networks:
       - buildnet
@@ -15,14 +15,14 @@ services:
       context: .
       dockerfile: Dockerfile.ap24-base
       network: buildnet
-    image: rpmbuild:6-php5ap24base
+    image: aursu/php5build:6-ap24base
   centos6php5:
     volumes:
       - rpms:/home/centos/rpmbuild/SRPMS
       - rpm6:/home/centos/rpmbuild/RPMS
     build:
       context: .
-    image: rpmbuild:6-php5build
+    image: aursu/php5build:el6
   centos6php5rel:
     command: ["-ba", "--with", "relocation"]
     volumes:
@@ -30,7 +30,7 @@ services:
       - rpm6:/home/centos/rpmbuild/RPMS
     build:
       context: .
-    image: rpmbuild:6-php5build
+    image: aursu/php5build:el6
   centos6php5ap24:
     volumes:
       - rpms:/home/centos/rpmbuild/SRPMS
@@ -38,7 +38,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.ap24
-    image: rpmbuild:6-php5ap24
+    image: aursu/php5build:6-ap24
   centos6php5ap24rel:
     command: ["-ba", "--with", "relocation"]
     volumes:
@@ -47,7 +47,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.ap24
-    image: rpmbuild:6-php5ap24
+    image: aursu/php5build:6-ap24
 
 volumes:
   rpms:

@@ -7,7 +7,7 @@ services:
       context: .
       dockerfile: Dockerfile.el7-base
       network: buildnet
-    image: rpmbuild:7-php5base
+    image: aursu/php5build:7-base
   centos7php5:
     volumes:
       - rpms:/home/centos/rpmbuild/SRPMS
@@ -15,7 +15,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.el7
-    image: rpmbuild:7-php5build
+    image: aursu/php5build:el7
   centos7php5rel:
     command: ["-ba", "--with", "relocation"]
     volumes:
@@ -24,7 +24,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.el7
-    image: rpmbuild:7-php5build
+    image: aursu/php5build:el7
 
 volumes:
   rpms:
