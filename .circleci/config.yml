@@ -10,21 +10,27 @@ jobs:
           command: |
             cat /etc/*release
             compose=
+            dockerbin=
             if which docker-compose; then
               docker-compose version
               compose=$(which docker-compose)
             fi
             if which docker; then
               docker version
+              dockerbin=$(which docker)
+              ldd "$dockerbin" || true
+              sha256sum "$dockerbin" || true
             fi
             if which dpkg; then
-              if [ -n "$compose" ]; then
-                dpkg -S "$compose"
+              if [ -n "$compose" -a -n "$dockerbin" ]; then
+                dpkg -S "$compose" || true
+                dpkg -S "$dockerbin" || true
               fi
             fi
             if which rpm; then
-              if [ -n "$compose" ]; then
-                rpm -qf "$compose"
+              if [ -n "$compose" -a -n "$dockerbin" ]; then
+                rpm -qf "$compose" || true
+                rpm -qf "$dockerbin" || true
               fi
             fi
       - run:
