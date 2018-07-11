@@ -6,6 +6,28 @@ jobs:
       image: circleci/classic:201711-01
     steps:
       - run:
+          name: Check Environment
+          command: |
+            cat /etc/*release
+            compose=
+            if which docker-compose; then
+              docker-compose version
+              compose=$(which docker-compose)
+            fi
+            if which docker; then
+              docker version
+            fi
+            if which dpkg; then
+              if [ -n "$compose" ]; then
+                dpkg -S "$compose"
+              fi
+            fi
+            if which rpm; then
+              if [ -n "$compose" ]; then
+                rpm -qf "$compose"
+              fi
+            fi
+      - run:
           name: Checkout code
           environment:
             CIRCLE_REPOSITORY_URL: https://github.com/aursu/rpmbuild-php-5.6.git
