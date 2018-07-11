@@ -14,7 +14,18 @@ jobs:
           name: Upgrade Docker Compose
           command: |
             sudo curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose 
+            sudo chmod +x /usr/local/bin/docker-compose
+  setup:
+    machine:
+      docker_layer_caching: true
+      image: circleci/classic:201711-01
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
+      - run:
+          name: Start docker services for rpmbuild
+          command: docker-compose -f rpmbuild/docker-compose.yml up -d
   curlbuild:
     machine:
       docker_layer_caching: true
@@ -95,15 +106,18 @@ workflows:
    phpbuild:
      jobs:
        - prerequisites
+       - setup
+           requires:
+             - prerequisites           
        - curlbuild:
            requires:
-             - prerequisites
+             - setup
        - pgbuild:
            requires:
-             - prerequisites
+             - setup
        - ap24build:
            requires:
-             - prerequisites
+             - setup
        - build:
            requires:
              - curlbuild
