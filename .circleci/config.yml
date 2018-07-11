@@ -14,6 +14,7 @@ jobs:
           command: |
             sudo curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
+
   rpmbuild:
     machine: true
     steps:
@@ -23,6 +24,7 @@ jobs:
       - run:
           name: Start docker services for rpmbuild
           command: docker-compose -f rpmbuild/docker-compose.yml up -d
+
   curlbuild:
     machine: true
     steps:
@@ -40,6 +42,7 @@ jobs:
             pwd
             ls -la
             docker-compose -f rpmbuild-curl/docker-compose.yml up centos7curlbuild
+
   pgbuild:
     machine: true
     steps:
@@ -57,6 +60,7 @@ jobs:
             pwd
             ls -la
             docker-compose -f rpmbuild-postgresql/docker-compose.yml up postgresql7build
+
   ap24build:
     machine: true
     steps:
@@ -74,6 +78,7 @@ jobs:
             pwd
             ls -la
             docker-compose -f rpmbuild-httpd-2.4/docker-compose.yml up centos7ap24build
+
   build:
     machine: true
     steps:
@@ -82,27 +87,27 @@ jobs:
           command: docker-compose build
       - run:
           name: Build PHP 5.6
-          command: |
-            docker-compose -f docker-compose.el7.yml up centos7php5
+          command: docker-compose -f docker-compose.el7.yml up centos7php5
+
 workflows:
-   version: 2
-   phpbuild:
-     jobs:
-       - prerequisites
-       - rpmbuild
-           requires:
-             - prerequisites           
-       - curlbuild:
-           requires:
-             - rpmbuild
-       - pgbuild:
-           requires:
-             - rpmbuild
-       - ap24build:
-           requires:
-             - rpmbuild
-       - build:
-           requires:
-             - curlbuild
-             - pgbuild
-             - ap24build
+  version: 2
+  phpbuild:
+    jobs:
+      - prerequisites
+      - rpmbuild
+          requires:
+            - prerequisites           
+      - curlbuild:
+          requires:
+            - rpmbuild
+      - pgbuild:
+          requires:
+            - rpmbuild
+      - ap24build:
+          requires:
+            - rpmbuild
+      - build:
+          requires:
+            - curlbuild
+            - pgbuild
+            - ap24build
