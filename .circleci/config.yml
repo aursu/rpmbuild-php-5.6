@@ -77,12 +77,6 @@ jobs:
   build:
     machine: true
     steps:
-      - checkout
-      - run: git submodule sync
-      - run: git submodule update --init
-      - run:
-          name: Start docker services for rpmbuild
-          command: docker-compose -f rpmbuild/docker-compose.yml up -d
       - run:
           name: Build Docker image
           command: docker-compose build
