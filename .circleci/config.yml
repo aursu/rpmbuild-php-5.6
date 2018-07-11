@@ -3,7 +3,6 @@ jobs:
   prerequisites:
     machine:
       docker_layer_caching: true
-      image: circleci/classic:201711-01  
     steps:
       - run:
           name: Upgrade Docker CE
@@ -15,10 +14,8 @@ jobs:
           command: |
             sudo curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
-  setup:
-    machine:
-      docker_layer_caching: true
-      image: circleci/classic:201711-01
+  rpmbuild:
+    machine: true
     steps:
       - checkout
       - run: git submodule sync
@@ -27,9 +24,7 @@ jobs:
           name: Start docker services for rpmbuild
           command: docker-compose -f rpmbuild/docker-compose.yml up -d
   curlbuild:
-    machine:
-      docker_layer_caching: true
-      image: circleci/classic:201711-01
+    machine: true
     steps:
       - run:
           name: Checkout curl
@@ -46,9 +41,7 @@ jobs:
             ls -la
             docker-compose -f rpmbuild-curl/docker-compose.yml up centos7curlbuild
   pgbuild:
-    machine:
-      docker_layer_caching: true
-      image: circleci/classic:201711-01
+    machine: true
     steps:
       - run:
           name: Checkout PostgreSQL 9.6
@@ -65,9 +58,7 @@ jobs:
             ls -la
             docker-compose -f rpmbuild-postgresql/docker-compose.yml up postgresql7build
   ap24build:
-    machine:
-      docker_layer_caching: true
-      image: circleci/classic:201711-01
+    machine: true
     steps:
       - run:
           name: Checkout Apache 2.4
@@ -84,9 +75,7 @@ jobs:
             ls -la
             docker-compose -f rpmbuild-httpd-2.4/docker-compose.yml up centos7ap24build
   build:
-    machine:
-      docker_layer_caching: true
-      image: circleci/classic:201711-01
+    machine: true
     steps:
       - checkout
       - run: git submodule sync
@@ -106,18 +95,18 @@ workflows:
    phpbuild:
      jobs:
        - prerequisites
-       - setup
+       - rpmbuild
            requires:
              - prerequisites           
        - curlbuild:
            requires:
-             - setup
+             - rpmbuild
        - pgbuild:
            requires:
-             - setup
+             - rpmbuild
        - ap24build:
            requires:
-             - setup
+             - rpmbuild
        - build:
            requires:
              - curlbuild
