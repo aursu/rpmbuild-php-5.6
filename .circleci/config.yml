@@ -1,0 +1,13 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: centos:7
+    steps:
+      - checkout
+      - run:
+          name: Install Docker
+          command: echo install docker
+      - run:
+          name: Install Docker Compose
+          command: echo install docker-compose
