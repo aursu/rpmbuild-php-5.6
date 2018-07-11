@@ -94,7 +94,7 @@ workflows:
   phpbuild:
     jobs:
       - prerequisites
-      - rpmbuild
+      - rpmbuild:
           requires:
             - prerequisites           
       - curlbuild:
