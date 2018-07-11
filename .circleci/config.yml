@@ -1,9 +1,9 @@
 version: 2
 jobs:
-  build:
+  prerequisites:
     machine:
       docker_layer_caching: true
-      image: circleci/classic:201711-01
+      image: circleci/classic:201711-01  
     steps:
       - run:
           name: Upgrade Docker CE
@@ -14,40 +14,98 @@ jobs:
           name: Upgrade Docker Compose
           command: |
             sudo curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
-            sudo chmod +x /usr/local/bin/docker-compose
+            sudo chmod +x /usr/local/bin/docker-compose 
+  curlbuild:
+    machine:
+      docker_layer_caching: true
+      image: circleci/classic:201711-01
+    steps:
       - run:
-          name: Checkout code
-          environment:
-            CIRCLE_REPOSITORY_URL: https://github.com/aursu/rpmbuild-php-5.6.git
+          name: Checkout curl
           command: |
-            if [ -e /home/circleci/project ]
-            then
-              rm -rf /home/circleci/project
-            fi
-            mkdir -p /home/circleci/project
-            cd /home/circleci/project
-            git clone --recursive "$CIRCLE_REPOSITORY_URL" .
-            
-            if [ -n "$CIRCLE_TAG" ]
-            then
-              git fetch --force origin "refs/tags/${CIRCLE_TAG}"
-            else
-              git fetch --force origin "master:remotes/origin/master"
-            fi
-            if [ -n "$CIRCLE_TAG" ]
-            then
-              git reset --hard "$CIRCLE_SHA1"
-              git checkout -q "$CIRCLE_TAG"
-            elif [ -n "$CIRCLE_BRANCH" ]
-            then
-              git reset --hard "$CIRCLE_SHA1"
-              git checkout -q -B "$CIRCLE_BRANCH"
-            fi
-            
-            git reset --hard "$CIRCLE_SHA1"
+            pwd
+            ls -la
+            git clone https://github.com/aursu/rpmbuild-curl.git
+            cd rpmbuild-curl
+            git checkout v7.60.0-2
+      - run:
+          name: Build curl
+          command: |
+            pwd
+            ls -la
+            docker-compose -f rpmbuild-curl/docker-compose.yml up centos7curlbuild
+  pgbuild:
+    machine:
+      docker_layer_caching: true
+      image: circleci/classic:201711-01
+    steps:
+      - run:
+          name: Checkout PostgreSQL 9.6
+          command: |
+            pwd
+            ls -la
+            git clone https://github.com/aursu/rpmbuild-postgresql.git
+            cd rpmbuild-postgresql
+            git checkout v9.6.9-2
+      - run:
+          name: Build PostgreSQL 9.6
+          command: |
+            pwd
+            ls -la
+            docker-compose -f rpmbuild-postgresql/docker-compose.yml up postgresql7build
+  ap24build:
+    machine:
+      docker_layer_caching: true
+      image: circleci/classic:201711-01
+    steps:
+      - run:
+          name: Checkout Apache 2.4
+          command: |
+            pwd
+            ls -la
+            git clone https://github.com/aursu/rpmbuild-httpd-2.4.git
+            cd rpmbuild-httpd-2.4
+            git checkout v2.4.33-5
+      - run:
+          name: Build Apache 2.4
+          command: |
+            pwd
+            ls -la
+            docker-compose -f rpmbuild-httpd-2.4/docker-compose.yml up centos7ap24build
+  build:
+    machine:
+      docker_layer_caching: true
+      image: circleci/classic:201711-01
+    steps:
+      - checkout
+      - run: git submodule sync
+      - run: git submodule update --init
       - run:
           name: Start docker services for rpmbuild
           command: docker-compose -f rpmbuild/docker-compose.yml up -d
       - run:
-          name: Check running services
-          command: docker ps
+          name: Build Docker image
+          command: docker-compose build
+      - run:
+          name: Build PHP 5.6
+          command: |
+            docker-compose -f docker-compose.el7.yml up centos7php5
+workflows:
+   version: 2
+   phpbuild:
+     jobs:
+       - prerequisites
+       - curlbuild:
+           requires:
+             - prerequisites
+       - pgbuild:
+           requires:
+             - prerequisites
+       - ap24build:
+           requires:
+             - prerequisites
+       - build:
+           requires:
+             - curlbuild
+             - pgbuild
+             - ap24build
