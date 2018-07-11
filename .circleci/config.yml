@@ -6,34 +6,14 @@ jobs:
       image: circleci/classic:201711-01
     steps:
       - run:
-          name: Check Environment
+          name: Upgrade Docker CE
           command: |
-            cat /etc/*release
-            compose=
-            dockerbin=
-            if which docker-compose; then
-              docker-compose version
-              compose=$(which docker-compose)
-            fi
-            if which docker; then
-              docker version
-              dockerbin=$(which docker)
-              ldd "$dockerbin" || true
-              sha256sum "$dockerbin" || true
-            fi
-            if which dpkg; then
-              if [ -n "$compose" -a -n "$dockerbin" ]; then
-                dpkg -S "$compose" || true
-                dpkg -S "$dockerbin" || true
-              fi
-              sudo apt-get -u upgrade --assume-no || true
-            fi
-            if which rpm; then
-              if [ -n "$compose" -a -n "$dockerbin" ]; then
-                rpm -qf "$compose" || true
-                rpm -qf "$dockerbin" || true
-              fi
-            fi
+            sudo apt-get update
+            sudo apt-get install apt-transport-https ca-certificates curl software-properties-common
+            curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+            sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+            sudo apt-get update
+            sudo apt-get install docker-ce
       - run:
           name: Checkout code
           environment:
