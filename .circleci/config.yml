@@ -7,8 +7,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Checking Docker engine version
-          command: docker version
+          name: Start docker services for rpmbuild
+          command: docker-compose -f rpmbuild/docker-compose.yml up -d
       - run:
-          name: Check Docker Compose version
-          command: docker-compose version
+          name: Check running services
+          command: docker ps
