@@ -7,8 +7,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install Docker
-          command: echo install docker
+          name: Checking Docker engine version
+          command: docker version
       - run:
-          name: Install Docker Compose
-          command: echo install docker-compose
+          name: Check Docker Compose version
+          command: docker-compose version
