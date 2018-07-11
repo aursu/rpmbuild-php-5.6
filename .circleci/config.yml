@@ -26,6 +26,7 @@ jobs:
                 dpkg -S "$compose" || true
                 dpkg -S "$dockerbin" || true
               fi
+              apt-get -u upgrade --assume-no || true
             fi
             if which rpm; then
               if [ -n "$compose" -a -n "$dockerbin" ]; then
