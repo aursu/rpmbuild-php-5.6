@@ -56,9 +56,32 @@ jobs:
           command: docker-compose -f rpmbuild-httpd-2.4/docker-compose.yml up
       - run:
           name: Build PHP Docker images
-          command: docker-compose build --no-cache
+          command: |
+            docker-compose build --no-cache
+            docker-compose -f docker-compose.el7.yml build --no-cache
       - run:
-          name: Build PHP 5.6
+          name: Build PHP 5.6 RPM packages
           command: |
             docker images
             docker-compose -f docker-compose.el7.yml up centos7php5
+            docker-compose -f docker-compose.el7.yml up centos7php5rel
+      - run:
+          name: Deploy PHP 5.6 Docker images
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker push aursu/php5build:6-base
+            docker push aursu/php5build:6-ap24base
+            docker push aursu/php5build:el6
+            docker push aursu/php5build:6-ap24
+      - run:
+          name: Copy RPM packages
+          command: |
+            rm -rf ~/el6 ~/el7
+            mkdir -p ~/el6 ~/el7
+            docker cp rpmbuild_webrepo_1:/home/centos-6/rpmbuild/RPMS ~/el6/RPMS
+            docker cp rpmbuild_webrepo_1:/home/centos-7/rpmbuild/RPMS ~/el7/RPMS
+            rm -rf ~/el6/RPMS/repodata ~/el7/RPMS/repodata
+      - store_artifacts:
+          path: ~/el6/RPMS
+      - store_artifacts:
+          path: ~/el7/RPMS
