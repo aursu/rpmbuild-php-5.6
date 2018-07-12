@@ -28,7 +28,7 @@ jobs:
           background: true
           no_output_timeout: 2h
       - run:
-          name: Checkout curl
+          name: Checkout Curl
           command: |
             git clone https://github.com/aursu/rpmbuild-curl.git
             cd rpmbuild-curl
