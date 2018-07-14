@@ -952,9 +952,7 @@ ln -sf ../configure
     --with-icu-dir=%{_prefix} \
     --with-imap \
     --with-imap-ssl \
-%if 0%{?fedora} || 0%{?rhel} >= 7
     --with-kerberos \
-%endif
     --with-jpeg-dir=%{_prefix} \
     --with-layout=GNU \
     --with-libdir=%{_lib} \
@@ -1583,7 +1581,7 @@ fi
 * Fri Sep 29 2017 Alexander Ursu <alexander.ursu@gmail.com> 5.6.31-8
 - introduced scan directory for php-cgi
   http://php.net/manual/de/configuration.file.php#configuration.file.scan
- 
+
 * Thu Sep 21 2017 Alexander Ursu <alexander.ursu@gmail.com> 5.6.31-5
 - disabe PHP functions logging output to browser
 
