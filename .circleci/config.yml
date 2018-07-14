@@ -40,9 +40,9 @@ jobs:
       - run:
           name: Build Curl
           command: |
-            docker run -ti --rm --net buildnet rpmbuild:7-build yum list --disablerepo=* --enablerepo custom libcurl-devel | grep -q $CURL_VERSION ||
+            docker run -ti --rm --net buildnet aursu/rpmbuild:7-build yum list --disablerepo=* --enablerepo custom libcurl-devel | grep -q $CURL_VERSION ||
               docker-compose -f rpmbuild-curl/docker-compose.yml up centos7curlbuild
-            docker run -ti --rm --net buildnet rpmbuild:6-build yum list --disablerepo=* --enablerepo custom libcurl-devel | grep -q $CURL_VERSION ||
+            docker run -ti --rm --net buildnet aursu/rpmbuild:6-build yum list --disablerepo=* --enablerepo custom libcurl-devel | grep -q $CURL_VERSION ||
               docker-compose -f rpmbuild-curl/docker-compose.yml up centos6curlbuild
       - run:
           name: Checkout PostgreSQL 9.6
@@ -53,9 +53,9 @@ jobs:
       - run:
           name: Build PostgreSQL 9.6
           command: |
-            docker run -ti --rm --net buildnet rpmbuild:7-build yum list --disablerepo=* --enablerepo custom postgresql-devel | grep -q $POSTGRESQL_VERSION ||
+            docker run -ti --rm --net buildnet aursu/rpmbuild:7-build yum list --disablerepo=* --enablerepo custom postgresql-devel | grep -q $POSTGRESQL_VERSION ||
               docker-compose -f rpmbuild-postgresql/docker-compose.yml up postgresql7build
-            docker run -ti --rm --net buildnet rpmbuild:6-build yum list --disablerepo=* --enablerepo custom postgresql-devel | grep -q $POSTGRESQL_VERSION ||
+            docker run -ti --rm --net buildnet aursu/rpmbuild:6-build yum list --disablerepo=* --enablerepo custom postgresql-devel | grep -q $POSTGRESQL_VERSION ||
               docker-compose -f rpmbuild-postgresql/docker-compose.yml up postgresql6build
       - run:
           name: Checkout Apache 2.4
@@ -66,9 +66,9 @@ jobs:
       - run:
           name: Build Apache 2.4
           command: |
-            docker run -ti --rm --net buildnet rpmbuild:7-build yum list --disablerepo=* --enablerepo custom httpd-devel | grep -q $APACHE24_VERSION ||
+            docker run -ti --rm --net buildnet aursu/rpmbuild:7-build yum list --disablerepo=* --enablerepo custom httpd-devel | grep -q $APACHE24_VERSION ||
               docker-compose -f rpmbuild-httpd-2.4/docker-compose.yml up centos7ap24build
-            docker run -ti --rm --net buildnet rpmbuild:6-build yum list --disablerepo=* --enablerepo custom httpd-devel | grep -q $APACHE24_VERSION ||
+            docker run -ti --rm --net buildnet aursu/rpmbuild:6-build yum list --disablerepo=* --enablerepo custom httpd-devel | grep -q $APACHE24_VERSION ||
               docker-compose -f rpmbuild-httpd-2.4/docker-compose.yml up centos6ap24build
       - run:
           name: Build PHP Docker images
