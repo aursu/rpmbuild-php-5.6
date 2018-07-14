@@ -18,6 +18,19 @@ jobs:
           command: |
             sudo curl -L https://github.com/docker/compose/releases/download/1.21.2/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
             sudo chmod +x /usr/local/bin/docker-compose
+      - run:
+          name: Create Build User/Group
+          command:
+            if getent group centos; then
+              sudo groupmod -o -g 48 centos
+            else
+              sudo groupadd -o -g 48 centos
+            fi
+            if getent passwd centos; then
+              sudo usermod -o -u 48 -g centos centos
+            else
+              sudo useradd -o -u 48 -g centos -M -d /var/www/html centos
+            fi
       - checkout
       - run:
           name: Git submodules sync
@@ -39,10 +52,12 @@ jobs:
           name: Restore Repository
           command: |
             if [ -d ~/el6/RPMS ]; then
-              docker cp ~/el6/RPMS rpmbuild_webrepo_1:/home/centos-6/rpmbuild/
+              sudo chown -R centos:centos ~/el6/RPMS
+              docker cp -a ~/el6/RPMS rpmbuild_webrepo_1:/home/centos-6/rpmbuild/
             fi
             if [ -d ~/el7/RPMS ]; then
-              docker cp ~/el7/RPMS rpmbuild_webrepo_1:/home/centos-7/rpmbuild/
+              sudo chown -R centos:centos ~/el7/RPMS
+              docker cp -a ~/el7/RPMS rpmbuild_webrepo_1:/home/centos-7/rpmbuild/
             fi
       - run:
           name: Checkout Curl
@@ -106,6 +121,7 @@ jobs:
             mkdir -p ~/el6 ~/el7
             docker cp rpmbuild_webrepo_1:/home/centos-6/rpmbuild/RPMS ~/el6/
             docker cp rpmbuild_webrepo_1:/home/centos-7/rpmbuild/RPMS ~/el7/
+            sudo chown -R centos:centos ~/el6/RPMS ~/el7/RPMS
       - save_cache:
           key: rpm-cache-{{ checksum "requirements.txt" }}
           paths:
