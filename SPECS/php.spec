@@ -157,6 +157,7 @@
 %global  _nginx_home    %{_localstatedir}/lib/nginx
 # needed at srpm build time, when httpd-devel not yet installed
 %{!?_httpd_mmn:         %{expand: %%global _httpd_mmn        %%(cat %{_includedir}/httpd/.mmn 2>/dev/null || echo 0-0)}}
+%{!?_httpd_apxs: %global _httpd_apxs %{_sbindir}/apxs}
 
 %global with_dtrace 1
 %global with_zip    1
@@ -1557,6 +1558,7 @@ fi
 %changelog
 * Sat Jul 14 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.36-3
 - added --with-kerberos option for CentOS 6 build as well
+- added _httpd_apxs macro (not defined in CentOD 6)
 
 * Fri Jun  1 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.36-2
 - make all features optional (not by default)
