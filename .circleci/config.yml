@@ -3,6 +3,10 @@ jobs:
   build:
     machine:
       docker_layer_caching: true
+    environment:
+      CURL_VERSION: 7.60.0-2
+      POSTGRESQL_VERSION: 9.6.9-2
+      APACHE24_VERSION: 2.4.33-5
     steps:
       - run:
           name: Upgrade Docker CE
@@ -32,38 +36,55 @@ jobs:
           command: |
             git clone https://github.com/aursu/rpmbuild-curl.git
             cd rpmbuild-curl
-            git checkout v7.60.0-2
+            git checkout $CURL_VERSION
       - run:
           name: Build Curl
-          command: docker-compose -f rpmbuild-curl/docker-compose.yml up
+          command: |
+            docker run -ti --rm --net buildnet rpmbuild:7-build yum list --disablerepo=* --enablerepo custom libcurl-devel | grep -q $CURL_VERSION ||
+              docker-compose -f rpmbuild-curl/docker-compose.yml up centos7curlbuild
+            docker run -ti --rm --net buildnet rpmbuild:6-build yum list --disablerepo=* --enablerepo custom libcurl-devel | grep -q $CURL_VERSION ||
+              docker-compose -f rpmbuild-curl/docker-compose.yml up centos6curlbuild
       - run:
           name: Checkout PostgreSQL 9.6
           command: |
             git clone https://github.com/aursu/rpmbuild-postgresql.git
             cd rpmbuild-postgresql
-            git checkout v9.6.9-2
+            git checkout $POSTGRESQL_VERSION
       - run:
           name: Build PostgreSQL 9.6
-          command: docker-compose -f rpmbuild-postgresql/docker-compose.yml up
+          command: |
+            docker run -ti --rm --net buildnet rpmbuild:7-build yum list --disablerepo=* --enablerepo custom postgresql-devel | grep -q $POSTGRESQL_VERSION ||
+              docker-compose -f rpmbuild-postgresql/docker-compose.yml up postgresql7build
+            docker run -ti --rm --net buildnet rpmbuild:6-build yum list --disablerepo=* --enablerepo custom postgresql-devel | grep -q $POSTGRESQL_VERSION ||
+              docker-compose -f rpmbuild-postgresql/docker-compose.yml up postgresql6build
       - run:
           name: Checkout Apache 2.4
           command: |
             git clone https://github.com/aursu/rpmbuild-httpd-2.4.git
             cd rpmbuild-httpd-2.4
-            git checkout v2.4.33-5
+            git checkout $APACHE24_VERSION
       - run:
           name: Build Apache 2.4
-          command: docker-compose -f rpmbuild-httpd-2.4/docker-compose.yml up
+          command: |
+            docker run -ti --rm --net buildnet rpmbuild:7-build yum list --disablerepo=* --enablerepo custom httpd-devel | grep -q $APACHE24_VERSION ||
+              docker-compose -f rpmbuild-httpd-2.4/docker-compose.yml up centos7ap24build
+            docker run -ti --rm --net buildnet rpmbuild:6-build yum list --disablerepo=* --enablerepo custom httpd-devel | grep -q $APACHE24_VERSION ||
+              docker-compose -f rpmbuild-httpd-2.4/docker-compose.yml up centos6ap24build
       - run:
           name: Build PHP Docker images
           command: |
-            docker-compose build --no-cache
             docker-compose -f docker-compose.el7.yml build --no-cache
+            docker-compose build --no-cache
       - run:
           name: Build PHP 5.6 RPM packages
           command: |
-            docker-compose -f docker-compose.el7.yml up centos7php5
-            docker-compose -f docker-compose.el7.yml up centos7php5rel
+            docker-compose -f docker-compose.el7.yml up centos7php5 centos7php5rel
+            docker-compose up centos6php5 centos6php5rel
+      - run:
+          name: Build PHP Docker build images
+          command: |
+            docker-compose -f docker-compose.build.yml build --no-cache centos7php5build
+            docker-compose -f docker-compose.build.yml build --no-cache centos6php5build
       - run:
           name: Deploy PHP 5.6 Docker images
           command: |
@@ -72,6 +93,8 @@ jobs:
             docker push aursu/php5build:6-ap24base
             docker push aursu/php5build:el6
             docker push aursu/php5build:6-ap24
+            docker push aursu/php5build:7-build
+            docker push aursu/php5build:6-build
       - run:
           name: Copy RPM packages
           command: |
