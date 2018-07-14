@@ -38,11 +38,11 @@ jobs:
       - run:
           name: Restore Repository
           command: |
-            if [ -d ~/el6 ]; then
-              docker cp ~/el6/RPMS rpmbuild_webrepo_1:/home/centos-6/rpmbuild/RPMS
+            if [ -d ~/el6/RPMS ]; then
+              docker cp ~/el6/RPMS rpmbuild_webrepo_1:/home/centos-6/rpmbuild/
             fi
-            if [ -d ~/el7 ]; then
-              docker cp ~/el7/RPMS rpmbuild_webrepo_1:/home/centos-7/rpmbuild/RPMS
+            if [ -d ~/el7/RPMS ]; then
+              docker cp ~/el7/RPMS rpmbuild_webrepo_1:/home/centos-7/rpmbuild/
             fi
       - run:
           name: Checkout Curl
@@ -54,10 +54,10 @@ jobs:
           name: Build Curl
           command: |
             docker run -ti --rm --net buildnet -u root aursu/rpmbuild:7-build \
-            yum list --disablerepo=* --enablerepo custom libcurl-devel | grep -q $CURL_VERSION ||
+            yum -q list --disablerepo=* --enablerepo custom libcurl-devel | grep -q $CURL_VERSION ||
               docker-compose -f rpmbuild-curl/docker-compose.yml up centos7curlbuild
             docker run -ti --rm --net buildnet -u root aursu/rpmbuild:6-build \
-            yum list --disablerepo=* --enablerepo custom libcurl-devel | grep -q $CURL_VERSION ||
+            yum -q list --disablerepo=* --enablerepo custom libcurl-devel | grep -q $CURL_VERSION ||
               docker-compose -f rpmbuild-curl/docker-compose.yml up centos6curlbuild
       - run:
           name: Checkout PostgreSQL 9.6
@@ -69,10 +69,10 @@ jobs:
           name: Build PostgreSQL 9.6
           command: |
             docker run -ti --rm --net buildnet -u root aursu/rpmbuild:7-build \
-            yum list --disablerepo=* --enablerepo custom postgresql-devel | grep -q $POSTGRESQL_VERSION ||
+            yum -q list --disablerepo=* --enablerepo custom postgresql-devel | grep -q $POSTGRESQL_VERSION ||
               docker-compose -f rpmbuild-postgresql/docker-compose.yml up postgresql7build
             docker run -ti --rm --net buildnet -u root aursu/rpmbuild:6-build \
-            yum list --disablerepo=* --enablerepo custom postgresql-devel | grep -q $POSTGRESQL_VERSION ||
+            yum -q list --disablerepo=* --enablerepo custom postgresql-devel | grep -q $POSTGRESQL_VERSION ||
               docker-compose -f rpmbuild-postgresql/docker-compose.yml up postgresql6build
       - run:
           name: Checkout Apache 2.4
@@ -84,10 +84,10 @@ jobs:
           name: Build Apache 2.4
           command: |
             docker run -ti --rm --net buildnet -u root aursu/rpmbuild:7-build \
-            yum list --disablerepo=* --enablerepo custom httpd-devel | grep -q $APACHE24_VERSION ||
+            yum -q list --disablerepo=* --enablerepo custom httpd-devel | grep -q $APACHE24_VERSION ||
               docker-compose -f rpmbuild-httpd-2.4/docker-compose.yml up centos7ap24build
             docker run -ti --rm --net buildnet -u root aursu/rpmbuild:6-build \
-            yum list --disablerepo=* --enablerepo custom httpd-devel | grep -q $APACHE24_VERSION ||
+            yum -q list --disablerepo=* --enablerepo custom httpd-devel | grep -q $APACHE24_VERSION ||
               docker-compose -f rpmbuild-httpd-2.4/docker-compose.yml up centos6ap24build
       - run:
           name: Build PHP Docker images
@@ -100,21 +100,6 @@ jobs:
             docker-compose -f docker-compose.el7.yml up centos7php5 centos7php5rel
             docker-compose up centos6php5 centos6php5rel
       - run:
-          name: Build PHP Docker build images
-          command: |
-            docker-compose -f docker-compose.build.yml build --no-cache centos7php5build
-            docker-compose -f docker-compose.build.yml build --no-cache centos6php5build
-      - run:
-          name: Deploy PHP 5.6 Docker images
-          command: |
-            docker login -u $DOCKER_USER -p $DOCKER_PASS
-            docker push aursu/php5build:6-base
-            docker push aursu/php5build:6-ap24base
-            docker push aursu/php5build:el6
-            docker push aursu/php5build:6-ap24
-            docker push aursu/php5build:7-build
-            docker push aursu/php5build:6-build
-      - run:
           name: Copy RPM packages
           command: |
             rm -rf ~/el6 ~/el7
@@ -124,8 +109,23 @@ jobs:
       - save_cache:
           key: rpm-cache-{{ checksum "requirements.txt" }}
           paths:
-            - ~/el6/
-            - ~/el7/
+            - ~/el6/RPMS
+            - ~/el7/RPMS
+      - run:
+          name: Deploy PHP 5.6 Docker images
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+            docker push aursu/php5build:6-base
+            docker push aursu/php5build:6-ap24base
+            docker push aursu/php5build:el6
+            docker push aursu/php5build:6-ap24
+      - run:
+          name: Build PHP Docker build images
+          command: |
+            docker-compose -f docker-compose.build.yml build --no-cache centos7php5build
+            docker push aursu/php5build:7-build
+            docker-compose -f docker-compose.build.yml build --no-cache centos6php5build
+            docker push aursu/php5build:6-build
       - store_artifacts:
           path: ~/el6/RPMS
       - store_artifacts:
