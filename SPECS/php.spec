@@ -173,7 +173,7 @@
 %global with_libzip 0
 %endif
 
-%global rpmrel 2
+%global rpmrel 3
 
 %global baserel %{rpmrel}%{?dist}
 
@@ -1555,6 +1555,9 @@ fi
 %endif
 
 %changelog
+* Sat Jul 14 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.36-3
+- added --with-kerberos option for CentOS 6 build as well
+
 * Fri Jun  1 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.36-2
 - make all features optional (not by default)
 
