@@ -4,18 +4,32 @@ services:
     networks:
       - buildnet
     build:
-      context: .
-      dockerfile: Dockerfile.build
+      context: build/6
       network: buildnet
     image: aursu/php5build:6-build
+  centos6php5buildrel:
+    networks:
+      - buildnet
+    build:
+      context: build/6
+      dockerfile: Dockerfile.rel
+      network: buildnet
+    image: aursu/php5build:6-build-rel
   centos7php5build:
     networks:
       - buildnet
     build:
-      context: .
-      dockerfile: Dockerfile.el7-build
+      context: build/7
       network: buildnet
     image: aursu/php5build:7-build
+  centos7php5buildrel:
+    networks:
+      - buildnet
+    build:
+      context: build/7
+      dockerfile: Dockerfile.rel
+      network: buildnet
+    image: aursu/php5build:7-build-rel
 
 networks:
   buildnet:
