@@ -21,12 +21,13 @@ jobs:
             sudo chmod +x /usr/local/bin/docker-compose
       - run:
           name: Create Build User/Group
-          command:
+          command: |
             if getent group centos; then
               sudo groupmod -o -g 48 centos
             else
               sudo groupadd -o -g 48 centos
             fi
+
             if getent passwd centos; then
               sudo usermod -o -u 48 -g centos centos
             else
