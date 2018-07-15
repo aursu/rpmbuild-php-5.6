@@ -178,7 +178,7 @@
 %global with_libzip 0
 %endif
 
-%global rpmrel 3
+%global rpmrel 4
 
 %global baserel %{rpmrel}%{?dist}
 
@@ -1449,11 +1449,11 @@ fi
 %if %{with_cli}
 %files cli
 %defattr(-,root,root)
-%attr(0700,root,root) %{_bindir}/%{bin_cli}
-%attr(0700,root,root) %{_bindir}/phar.%{bin_phar}
-%attr(0700,root,root) %{_bindir}/%{bin_phar}
+%attr(0755,root,root) %{_bindir}/%{bin_cli}
+%attr(0755,root,root) %{_bindir}/phar.%{bin_phar}
+%attr(0755,root,root) %{_bindir}/%{bin_phar}
 # provides phpize here (not in -devel) for pecl command
-%attr(0700,root,root) %{_bindir}/%{bin_phpize}
+%attr(0755,root,root) %{_bindir}/%{bin_phpize}
 %{_mandir}/man1/%{bin_cli}.1*
 %{_mandir}/man1/%{bin_phar}.1*
 %{_mandir}/man1/phar.%{bin_phar}.1*
@@ -1560,6 +1560,9 @@ fi
 %endif
 
 %changelog
+* Sun Jul 15 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.36-4
+- set correct permissions on CLI binaries (755)
+
 * Sat Jul 14 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.36-3
 - added --with-kerberos option for CentOS 6 build as well
 - added httpd macros (not defined in CentOS 6)
