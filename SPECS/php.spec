@@ -178,7 +178,7 @@
 %global with_libzip 0
 %endif
 
-%global rpmrel 4
+%global rpmrel 5
 
 %global baserel %{rpmrel}%{?dist}
 
@@ -766,12 +766,6 @@ SQLite is a C library that implements an embeddable SQL database engine.
 
 # Fixes for tests
 %patch300 -p1
-
-%patch91 -p1
-%patch92 -p1
-%patch93 -p1
-%patch94 -p1
-%patch96 -p1
 
 # Prevent %%doc confusion over LICENSE files
 cp Zend/LICENSE Zend/ZEND_LICENSE
@@ -1560,12 +1554,11 @@ fi
 %endif
 
 %changelog
-* Sun Jul 15 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.36-4
+* Sun Jul 15 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.36-5
 - set correct permissions on CLI binaries (755)
-
-* Sat Jul 14 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.36-3
 - added --with-kerberos option for CentOS 6 build as well
 - added httpd macros (not defined in CentOS 6)
+- disabled logging customiation
 
 * Fri Jun  1 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.36-2
 - make all features optional (not by default)
