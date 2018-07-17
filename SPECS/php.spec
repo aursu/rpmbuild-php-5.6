@@ -20,6 +20,7 @@
 %global with_ldap 0%{!?_without_ldap:1}
 %global with_mysql 0%{!?_without_mysql:1}
 %global with_bcmath 0%{!?_without_bcmath:1}
+%global with_posix 0%{!?_without_posix:1}
 %global with_devel 0%{!?_without_devel:1}
 %global with_common 0%{!?_without_common:1}
 
@@ -178,7 +179,7 @@
 %global with_libzip 0
 %endif
 
-%global rpmrel 5
+%global rpmrel 6
 
 %global baserel %{rpmrel}%{?dist}
 
@@ -730,6 +731,26 @@ Requires: %{php_common}%{?_isa} = %{version}-%{baserel}
 SQLite is a C library that implements an embeddable SQL database engine.
 %endif
 
+%if %{with_posix}
+%package process
+Summary: Modules for PHP script using system process interfaces
+Group: Development/Languages
+# All files licensed under PHP version 3.01
+License: PHP
+Requires: %{php_common}%{?_isa} = %{version}-%{baserel}
+Provides: php-posix, php-posix%{?_isa}
+Provides: php-shmop, php-shmop%{?_isa}
+Provides: php-sysvsem, php-sysvsem%{?_isa}
+Provides: php-sysvshm, php-sysvshm%{?_isa}
+Provides: php-sysvmsg, php-sysvmsg%{?_isa}
+%global with_modules 1
+
+%description process
+The php-process package contains dynamic shared objects which add
+support to PHP using system interfaces for inter-process
+communication.
+%endif
+
 %prep
 %setup -q -n php-%{version}
 
@@ -1011,6 +1032,11 @@ ln -sf ../configure
 %if %{with_ldap}
     --with-ldap=shared --with-ldap-sasl \
 %endif
+%if %{with_posix}
+    --enable-sysvmsg=shared --enable-sysvshm=shared --enable-sysvsem=shared \
+    --enable-shmop=shared \
+    --enable-posix=shared \
+%endif
     $*
 
 if test $? != 0; then
@@ -1036,7 +1062,9 @@ popd
 %endif
 
 without_shared="--disable-bcmath --disable-dom --disable-opcache \
+      --disable-posix --disable-shmop \
       --disable-simplexml \
+      --disable-sysvmsg --disable-sysvsem --disable-sysvshm \
       --disable-wddx --disable-xmlreader --disable-xmlwriter --without-ldap \
       --without-mysql --without-mysqli --without-pdo-mysql \
       --without-pdo-pgsql --without-pgsql \
@@ -1275,6 +1303,9 @@ for mod in \
 %if %{with_mysqlnd} || %{with_mysql}
     mysql mysqli pdo_mysql \
 %endif
+%if %{with_posix}
+    posix shmop sysvshm sysvsem sysvmsg \
+%endif
     ; do
     case $mod in
       opcache)
@@ -1328,6 +1359,11 @@ cat files.mysql files.mysqli files.pdo_mysql >> files.mysqlnd
 %if %{with_mysql}
 cat files.mysqli files.pdo_mysql >> files.mysql
 %endif
+%endif
+
+%if %{with_posix}
+# sysv* and posix in packaged in php-process
+cat files.shmop files.sysv* files.posix > files.process
 %endif
 
 %if %{with_pgsql}
@@ -1524,6 +1560,10 @@ fi
 %files pgsql -f files.pgsql
 %endif
 
+%if %{with_posix}
+%files process -f files.process
+%endif
+
 %if %{with_sqlite}
 %files sqlite -f files.sqlite
 %endif
@@ -1554,6 +1594,9 @@ fi
 %endif
 
 %changelog
+* Tue Jul 17 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.36-6
+- added process subpackage (php-pear dependency)
+
 * Sun Jul 15 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.36-5
 - set correct permissions on CLI binaries (755)
 - added --with-kerberos option for CentOS 6 build as well
