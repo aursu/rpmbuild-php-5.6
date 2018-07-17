@@ -41,7 +41,9 @@ jobs:
             git submodule update --init
       - run:
           name: Start docker services for rpmbuild
-          command: docker-compose -f rpmbuild/docker-compose.yml up -d
+          command: |
+            docker-compose -f rpmbuild/docker-compose.yml pull
+            docker-compose -f rpmbuild/docker-compose.yml up -d
           background: true
           no_output_timeout: 2h
       - restore_cache:
