@@ -54,6 +54,7 @@ jobs:
       - run:
           name: Restore Repository
           command: |
+            sleep 30
             if [ -d ~/el6/RPMS ]; then
               sudo chown -R centos:centos ~/el6/RPMS
               docker cp -a ~/el6/RPMS rpmbuild_webrepo_1:/home/centos-6/rpmbuild/
