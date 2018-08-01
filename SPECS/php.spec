@@ -179,13 +179,13 @@
 %global with_libzip 0
 %endif
 
-%global rpmrel 6
+%global rpmrel 1
 
 %global baserel %{rpmrel}%{?dist}
 
 Summary: PHP scripting language for creating dynamic web sites
 Name: %{php_main}
-Version: 5.6.36
+Version: 5.6.37
 Release: %{rpmrel}%{?aptag}%{?dist}
 
 # All files licensed under PHP version 3.01, except
@@ -1594,6 +1594,9 @@ fi
 %endif
 
 %changelog
+* Wed Aug  1 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.37-1
+- Update to 5.6.37 - http://www.php.net/releases/5_6_37.php
+
 * Tue Jul 17 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.36-6
 - added process subpackage (php-pear dependency)
 

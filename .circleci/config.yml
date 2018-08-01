@@ -4,10 +4,11 @@ jobs:
     machine:
       docker_layer_caching: true
     environment:
-      APACHE24_VERSION: 2.4.33-5
-      CURL_VERSION: 7.60.0-2
+      APACHE24_VERSION: 2.4.34-3
+      CURL_VERSION: 7.61.0-1
       POSTGRESQL_VERSION: 9.6.9-2
-      PHP_VERSION: 5.6.36-6
+      PHP_VERSION: 5.6.37-1
+      PACKAGE_VCS_URL: https://github.com/aursu/rpmbuild-php-5.6
     steps:
       - run:
           name: Upgrade Docker CE
@@ -151,6 +152,19 @@ jobs:
           paths:
             - ~/el6/RPMS
             - ~/el7/RPMS
+      - run:
+          name: Upload RPM packages into Bintray
+          command: |
+            docker-compose -f rpmbuild/docker-compose.bintray.yml run --rm \
+              -e BINTRAY_USER=$BINTRAY_USER \
+              -e BINTRAY_API_KEY=$BINTRAY_API_KEY \
+              -e BINTRAY_REPO=$BINTRAY_REPO \
+              -e PACKAGE_VCS_URL=$PACKAGE_VCS_URL centos7bintray
+            docker-compose -f rpmbuild/docker-compose.bintray.yml run --rm \
+              -e BINTRAY_USER=$BINTRAY_USER \
+              -e BINTRAY_API_KEY=$BINTRAY_API_KEY \
+              -e BINTRAY_REPO=$BINTRAY_REPO \
+              -e PACKAGE_VCS_URL=$PACKAGE_VCS_URL centos6bintray
       - run:
           name: Deploy PHP 5.6 Docker images
           command: |
