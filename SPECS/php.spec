@@ -179,7 +179,7 @@
 %global with_libzip 0
 %endif
 
-%global rpmrel 1
+%global rpmrel 2
 
 %global baserel %{rpmrel}%{?dist}
 
@@ -398,9 +398,6 @@ Provides: php-imap, php-imap%{?_isa}
 Provides: php-intl, php-intl%{?_isa}
 # As of PHP 5.2.0, the JSON extension is bundled and compiled into PHP by default
 Provides: php-json, php-json%{?_isa}
-%if %{with_relocation}
-Provides: %{php_main}-json, %{php_main}-json%{?_isa}
-%endif
 # The libxml extension is enabled by default
 Provides: php-libxml, php-libxml%{?_isa}
 # mbstring is a non-default extension. --enable-mbstring : Enable mbstring functions
@@ -449,6 +446,17 @@ Provides: php-zip, php-zip%{?_isa}
 Provides: php-zlib, php-zlib%{?_isa}
 %if %{with_ap24}
 Provides: %{php_common}%{?_isa} = %{version}-%{baserel}
+%endif
+%if ! %{with_relocation}
+Obsoletes: php-dba < %{version}-%{baserel}
+Obsoletes: php-gd < %{version}-%{baserel}
+Obsoletes: php-imap < %{version}-%{baserel}
+Obsoletes: php-intl  < %{version}-%{baserel}
+Obsoletes: php-mbstring < %{version}-%{baserel}
+Obsoletes: php-mcrypt < %{version}-%{baserel}
+Obsoletes: php-pdo < %{version}-%{baserel}
+Obsoletes: php-soap < %{version}-%{baserel}
+Obsoletes: php-xmlrpc < %{version}-%{baserel}
 %endif
 
 %description common
@@ -707,6 +715,7 @@ Provides: php-mysqli = %{version}-%{baserel}
 Provides: php-mysqli%{?_isa} = %{version}-%{baserel}
 Provides: php-pdo_mysql, php-pdo_mysql%{?_isa}
 Obsoletes: mod_php3-mysql, stronghold-php-mysql
+Conflicts: php-mysqlnd
 BuildRequires: mysql-devel
 %global with_modules 1
 
@@ -1594,6 +1603,9 @@ fi
 %endif
 
 %changelog
+* Thu Aug  2 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.37-2
+- added obsoletes dependencies
+
 * Wed Aug  1 2018 Alexander Ursu <alexander.ursu@gmail.com> 5.6.37-1
 - Update to 5.6.37 - http://www.php.net/releases/5_6_37.php
 
