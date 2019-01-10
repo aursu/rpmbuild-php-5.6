@@ -5,7 +5,7 @@ jobs:
       docker_layer_caching: true
     environment:
       APACHE24_VERSION: 2.4.37-1
-      CURL_VERSION: 7.63.0-4
+      CURL_VERSION: 7.63.0-5
       POSTGRESQL_VERSION: 9.6.11-1
       PHP_VERSION: 5.6.39-1
       BINTRAY_REPO: php5custom
