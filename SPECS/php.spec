@@ -179,7 +179,7 @@
 %global with_libzip 0
 %endif
 
-%global rpmrel 1
+%global rpmrel 2
 
 %global baserel %{rpmrel}%{?dist}
 
@@ -1225,8 +1225,12 @@ install -D -m 755 ioncube/ioncube_loader_lin_5.6.so $RPM_BUILD_ROOT%{php_libdir}
 install -D -m 755 zend-loader-php5.6-linux-x86_64/ZendGuardLoader.so $RPM_BUILD_ROOT%{php_libdir}/modules/ZendGuardLoader.so
 
 # install config
-sed "s,@LIBDIR@,%{_libdir},g" \
-    < %{SOURCE15} > php-cgi-fcgi.ini
+%if %{with_relocation}
+cat %{SOURCE115} > php-cgi-fcgi.ini
+%else
+cat %{SOURCE15} > php-cgi-fcgi.ini
+%endif
+sed -i.source "s,@LIBDIR@,%{_libdir},g" php-cgi-fcgi.ini
 install -D -m 644 php-cgi-fcgi.ini \
            $RPM_BUILD_ROOT%{php_sysconfdir}/php-cgi-fcgi.ini
 %endif
@@ -1603,6 +1607,10 @@ fi
 %endif
 
 %changelog
+* Fri Jan 18 2019 Alexander Ursu <alexander.ursu@gmail.com> 5.6.40-2
+- Fixed path to ionCube and Zend Optimizer extensions in relocated
+  version
+
 * Thu Jan 10 2019 Alexander Ursu <alexander.ursu@gmail.com> 5.6.40-1
 - Update to 5.6.40 - http://www.php.net/releases/5_6_40.php
 
