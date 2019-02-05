@@ -468,6 +468,7 @@ package and the %{php_cli} package.
 Group: Development/Languages
 Summary: Command-line interface for PHP
 Requires: %{php_common}%{?_isa} = %{version}-%{baserel}
+BuildRequires: readline-devel
 Provides: php-readline
 %if %{with_ap24}
 Provides: %{php_cli}%{?_isa} = %{version}-%{baserel}
