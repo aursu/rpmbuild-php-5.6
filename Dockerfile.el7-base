@@ -23,6 +23,7 @@ RUN yum -y install \
         openssl-devel \
         pcre-devel \
         postgresql-devel \
+        readline-devel \
         sendmail \
         sqlite-devel \
         systemd-devel \
