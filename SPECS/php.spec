@@ -179,7 +179,7 @@
 %global with_libzip 0
 %endif
 
-%global rpmrel 2
+%global rpmrel 3
 
 %global baserel %{rpmrel}%{?dist}
 
@@ -468,7 +468,7 @@ package and the %{php_cli} package.
 Group: Development/Languages
 Summary: Command-line interface for PHP
 Requires: %{php_common}%{?_isa} = %{version}-%{baserel}
-# No interactive mode for CLI/CGI (disabled libedit, readline)
+Provides: php-readline
 %if %{with_ap24}
 Provides: %{php_cli}%{?_isa} = %{version}-%{baserel}
 %endif
@@ -1092,7 +1092,9 @@ build --with-apxs2=%{_httpd_apxs} --disable-cgi \
     --disable-mysqlnd \
 %endif # if %{with_mysqlnd}
 %endif # if %{with_cgi}
-%if ! %{with_cli}
+%if %{with_cli}
+    --with-readline \
+%else
     --disable-cli \
 %endif
     --with-config-file-scan-dir=%{php_sysconfdir}/php.d
@@ -1607,6 +1609,9 @@ fi
 %endif
 
 %changelog
+* Tue Feb  5 2019 Alexander Ursu <alexander.ursu@gmail.com> 5.6.40-3
+- added php-readline for php-cli
+
 * Fri Jan 18 2019 Alexander Ursu <alexander.ursu@gmail.com> 5.6.40-2
 - Fixed path to ionCube and Zend Optimizer extensions in relocated
   version
