@@ -145,15 +145,7 @@
 
 %global mysql_sock %(mysql_config --socket 2>/dev/null || echo /var/lib/mysql/mysql.sock)
 
-%if 0%{?fedora}
 %global isasuffix -%{__isa_bits}
-%else
-%if 0%{?__isa:1}
-%global isasuffix -%{__isa}
-%else
-%global isasuffix %nil
-%endif
-%endif
 
 %global  _nginx_home    %{_localstatedir}/lib/nginx
 # needed at srpm build time, when httpd-devel not yet installed
@@ -179,7 +171,7 @@
 %global with_libzip 0
 %endif
 
-%global rpmrel 3
+%global rpmrel 4
 
 %global baserel %{rpmrel}%{?dist}
 
@@ -1610,6 +1602,9 @@ fi
 %endif
 
 %changelog
+* Wed Feb  6 2019 Alexander Ursu <alexander.ursu@gmail.com> 5.6.40-4
+- fixed zend api RPM version
+
 * Tue Feb  5 2019 Alexander Ursu <alexander.ursu@gmail.com> 5.6.40-3
 - added php-readline for php-cli
 
