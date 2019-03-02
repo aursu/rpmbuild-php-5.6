@@ -1,0 +1,18 @@
+version: "3.5"
+services:
+  centos6php5base:
+    build:
+      context: .
+      dockerfile: Dockerfile.el6-base
+    image: aursu/php5build:6-base
+  centos6php5ap24base:
+    build:
+      context: .
+      dockerfile: Dockerfile.ap24-base
+    image: aursu/php5build:6-ap24base
+  centos7php5base:
+    build:
+      context: .
+      dockerfile: Dockerfile.base
+      network: buildnet
+    image: aursu/php5build:7-base
