@@ -6,7 +6,6 @@ services:
       - rpm6:/home/centos/rpmbuild/RPMS
     build:
       context: .
-    image: aursu/php5build:el6
   centos6php5rel:
     command: ["-ba", "--with", "relocation"]
     volumes:
@@ -14,7 +13,6 @@ services:
       - rpm6:/home/centos/rpmbuild/RPMS
     build:
       context: .
-    image: aursu/php5build:el6
   centos6php5ap24:
     volumes:
       - rpms:/home/centos/rpmbuild/SRPMS
@@ -22,7 +20,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.ap24
-    image: aursu/php5build:6-ap24
   centos6php5ap24rel:
     command: ["-ba", "--with", "relocation"]
     volumes:
@@ -31,15 +28,12 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.ap24
-    image: aursu/php5build:6-ap24
   centos7php5:
     volumes:
       - rpms:/home/centos/rpmbuild/SRPMS
       - rpm7:/home/centos/rpmbuild/RPMS
     build:
       context: .
-      dockerfile: Dockerfile.el7
-    image: aursu/php5build:el7
   centos7php5rel:
     command: ["-ba", "--with", "relocation"]
     volumes:
@@ -47,8 +41,6 @@ services:
       - rpm7:/home/centos/rpmbuild/RPMS
     build:
       context: .
-      dockerfile: Dockerfile.el7
-    image: aursu/php5build:el7
 
 volumes:
   rpms:
