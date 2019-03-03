@@ -8,7 +8,7 @@ services:
       args:
         centos: 6
       network: buildnet
-    image: aursu/php7build:6-build
+    image: aursu/php5build:6-build
   centos6php7buildrel:
     networks:
       - buildnet
@@ -18,7 +18,7 @@ services:
         centos: 6
       dockerfile: Dockerfile.rel
       network: buildnet
-    image: aursu/php7build:6-build-rel
+    image: aursu/php5build:6-build-rel
 
 networks:
   buildnet:
