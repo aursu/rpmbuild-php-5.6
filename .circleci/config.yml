@@ -124,3 +124,9 @@ jobs:
             docker login -u $DOCKER_USER -p $DOCKER_PASS
             docker push aursu/php5build:7-build
             docker push aursu/php5build:7-build-rel
+workflows:
+  version: 2
+  php56build:
+    jobs:
+      - build6
+      - build7
