@@ -4,3 +4,9 @@ services:
     build:
       context: .
     image: aursu/php5build:7-runtime
+  centos7php5dev:
+    build:
+      context: .
+      args:
+        image: 7-nodedev
+    image: aursu/php5build:7-devbase

@@ -1,4 +1,5 @@
-FROM aursu/centos:7-curl
+ARG image=7-base
+FROM aursu/centos:${image}
 
 COPY system/etc/yum.repos.d/bintray-custom.repo /etc/yum.repos.d/bintray-custom.repo
 
@@ -14,4 +15,4 @@ RUN yum -y --enablerepo=bintray-custom --enablerepo=bintray-php5custom install \
         php-pecl-memcached \
         php-pecl-redis \
         php-xml \
-    && yum clean all && rm -rf /var/cache/yum
+    && yum clean all && rm -rf /var/cache/yum /var/lib/rpm/__db*
