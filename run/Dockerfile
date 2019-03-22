@@ -1,9 +1,8 @@
-ARG image=7-base
+ARG image=7-web
 FROM aursu/centos:${image}
 
 COPY system/etc/yum.repos.d/bintray-custom.repo /etc/yum.repos.d/bintray-custom.repo
 
-USER root
 RUN yum -y --enablerepo=bintray-custom --enablerepo=bintray-php5custom install \
         php-bcmath \
         php-cli \
@@ -16,3 +15,11 @@ RUN yum -y --enablerepo=bintray-custom --enablerepo=bintray-php5custom install \
         php-pecl-redis \
         php-xml \
     && yum clean all && rm -rf /var/cache/yum /var/lib/rpm/__db*
+
+# php-fpm configuration
+COPY system/etc/php-fpm.conf /etc/php-fpm.conf
+COPY system/etc/php-fpm.d/www.conf /etc/php-fpm.d/www.conf
+
+WORKDIR /var/www/html
+EXPOSE 9000
+CMD [ "/usr/sbin/php-fpm", "--nodaemonize" ]
