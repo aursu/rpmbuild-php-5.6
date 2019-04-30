@@ -171,7 +171,7 @@
 %global with_libzip 0
 %endif
 
-%global rpmrel 4
+%global rpmrel 5
 
 %global baserel %{rpmrel}%{?dist}
 
@@ -1602,6 +1602,9 @@ fi
 %endif
 
 %changelog
+* Tue Apr 30 2019 Alexander Ursu <alexander.ursu@gmail.com> 5.6.40-5
+- replaced php.ini with standard ones
+
 * Wed Feb  6 2019 Alexander Ursu <alexander.ursu@gmail.com> 5.6.40-4
 - fixed zend api RPM version
 
