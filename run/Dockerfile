@@ -7,6 +7,7 @@ RUN yum -y --enablerepo=bintray-custom --enablerepo=bintray-php5custom install \
         php-bcmath \
         php-cli \
         php-fpm \
+        php-mysql \
         php-opcache \
         php-pecl-apcu \
         php-pecl-geoip \
